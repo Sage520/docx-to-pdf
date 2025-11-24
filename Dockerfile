@@ -1,4 +1,4 @@
-FROM moalhaddar/docx-to-pdf-base:1.0.0
+FROM sage668/docx-to-pdf-base:1.0.0
 
 WORKDIR /project
 COPY ./pom.xml .
