@@ -1,13 +1,25 @@
 # ---- Base Stage ----
 FROM ubuntu:20.04 AS base
 ENV DEBIAN_FRONTEND=noninteractive
+ARG TARGETPLATFORM
 RUN apt-get update
 RUN apt-get upgrade -y
 RUN apt-get install -y software-properties-common
-# https://launchpad.net/~libreoffice/+archive/ubuntu/libreoffice-7-3
-RUN add-apt-repository ppa:libreoffice/libreoffice-7-3
-RUN apt-get update
-RUN apt-get install -y libreoffice
+
+# 根据平台选择合适的LibreOffice安装方式
+RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+        echo "Installing LibreOffice for ARM64"; \
+        apt-get install -y libreoffice; \
+    elif [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+        echo "Installing LibreOffice for AMD64"; \
+        add-apt-repository ppa:libreoffice/libreoffice-7-3; \
+        apt-get update; \
+        apt-get install -y libreoffice; \
+    else \
+        echo "Unsupported platform: $TARGETPLATFORM"; \
+        exit 1; \
+    fi
+
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/*
 
@@ -35,10 +47,10 @@ ENV PATH=$JAVA_HOME/bin:$PATH
 
 # ---- Maven Stage ----
 FROM base_java AS base_java_maven
-ARG MAVEN_SOURCE="https://dlcdn.apache.org/maven/maven-3/3.9.10/binaries/apache-maven-3.9.10-bin.tar.gz"
+ARG MAVEN_SOURCE="https://dlcdn.apache.org/maven/maven-3/3.9.11/binaries/apache-maven-3.9.11-bin.tar.gz"
 ARG MAVEN_FILE_NAME=maven.tar.gz
 RUN wget -O $MAVEN_FILE_NAME $MAVEN_SOURCE
 RUN tar -xzvf $MAVEN_FILE_NAME -C /usr/local
 RUN rm $MAVEN_FILE_NAME
-ENV MAVEN_HOME=/usr/local/apache-maven-3.9.10
+ENV MAVEN_HOME=/usr/local/apache-maven-3.9.11
 ENV PATH=$MAVEN_HOME/bin:$PATH
