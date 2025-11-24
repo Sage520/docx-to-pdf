@@ -35,8 +35,8 @@ jobs:
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
-          moalhaddar/docx-to-pdf:latest
-          moalhaddar/docx-to-pdf:2.1.0-${{github.run_number}}
+          sage668/docx-to-pdf:latest
+          sage668/docx-to-pdf:2.1.0-${{github.run_number}}
         build-args: |
           TARGETPLATFORM
       
